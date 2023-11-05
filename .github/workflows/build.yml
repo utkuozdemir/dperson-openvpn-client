@@ -65,7 +65,25 @@ jobs:
           echo "Extracted OPENVPN_VERSION=$OPENVPN_VERSION"
           echo "version=$OPENVPN_VERSION" >> $GITHUB_OUTPUT
 
+      - name: Check if the image already exists
+        id: image-exists
+        run: |
+          set -euo pipefail
+          
+          IMAGE=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:alpine-${{ steps.alpine-version.outputs.version }}-openvpn-${{ steps.openvpn-version.outputs.version }}")
+          
+          echo "Checking if image $IMAGE exists"
+          
+          if docker pull $IMAGE; then
+            echo "Image already exists"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Image does not exist"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Log in to ghcr.io
+        if: steps.image-exists.outputs.exists == 'false'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -73,6 +91,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
+        if : steps.image-exists.outputs.exists == 'false'
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -83,7 +102,7 @@ jobs:
             type=raw,value=latest
 
       - name: Push the images to ghcr.io
-        if: github.ref == 'refs/heads/master'
+        if: steps.image-exists.outputs.exists == 'false' && github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v5
         with:
           push: true
