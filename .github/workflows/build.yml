@@ -44,7 +44,7 @@ jobs:
           ALPINE_VERSION=$(docker run --rm -it current-build cat /etc/os-release | \
             grep VERSION_ID | \
             awk -F'=' ' { print $NF } ') | \
-            tr -d '[:space:]'
+            tr -d '[:space:]')
           echo "Extracted ALPINE_VERSION=$ALPINE_VERSION"
           echo "ALPINE_VERSION=$(echo $ALPINE_VERSION)" >> $GITHUB_ENV
       - name: Extract openvpn version from into a variable
@@ -53,7 +53,7 @@ jobs:
           OPENVPN_VERSION=$(docker run --rm -it current-build openvpn --version | \
             grep -o 'OpenVPN [0-9.]*' | \
             awk '{print $2}' | \
-            tr -d '[:space:]'
+            tr -d '[:space:]')
           echo "Extracted OPENVPN_VERSION=$OPENVPN_VERSION"
           echo "OPENVPN_VERSION=$(echo $OPENVPN_VERSION)" >> $GITHUB_ENV
       - name: Re-tag the image with alpine and openvpn versions
