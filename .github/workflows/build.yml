@@ -69,7 +69,7 @@ jobs:
           # latest
           docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:latest
 
-      - name: Push the image to ghcr.io if this is not a pull request
+      - name: Push the images to GitHub Container Registry
         if: ${{ github.event_name != 'pull_request' }}
         uses: docker/build-push-action@v5
         with:
@@ -77,4 +77,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           tags: |
             ghcr.io/utkuozdemir/dperson-pv-migrate:alpine-$ALPINE_VERSION-openvpn-$OPENVPN_VERSION
+            ghcr.io/utkuozdemir/dperson-pv-migrate:$OPENVPN_VERSION
             ghcr.io/utkuozdemir/dperson-pv-migrate:latest
