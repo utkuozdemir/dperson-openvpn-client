@@ -59,26 +59,40 @@ jobs:
           echo "Extracted OPENVPN_VERSION=$OPENVPN_VERSION"
           echo "OPENVPN_VERSION=$(echo $OPENVPN_VERSION)" >> $GITHUB_ENV
 
-      - name: Re-tag the image with alpine and openvpn versions
-        run: |
-          set -euo pipefail
-          
-          # alpine and openvpn versions
-          docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:alpine-$ALPINE_VERSION-openvpn-$OPENVPN_VERSION
-          
-          # only openvpn version
-          docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:$OPENVPN_VERSION
-          
-          # latest
-          docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:latest
+#      - name: Re-tag the image with alpine and openvpn versions
+#        run: |
+#          set -euo pipefail
+#
+#          # alpine and openvpn versions
+#          docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:alpine-$ALPINE_VERSION-openvpn-$OPENVPN_VERSION
+#
+#          # only openvpn version
+#          docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:$OPENVPN_VERSION
+#
+#          # latest
+#          docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:latest
 
-      - name: Push the images to GitHub Container Registry
-        if: github.ref == 'refs/heads/master'
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=alpine-$ALPINE_VERSION-openvpn-$OPENVPN_VERSION
+            type=raw,value=$OPENVPN_VERSION
+
+      - name: Push the images to ghcr.io
+#        if: github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v5
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          tags: |
-            ghcr.io/utkuozdemir/dperson-pv-migrate:alpine-$ALPINE_VERSION-openvpn-$OPENVPN_VERSION
-            ghcr.io/utkuozdemir/dperson-pv-migrate:$OPENVPN_VERSION
-            ghcr.io/utkuozdemir/dperson-pv-migrate:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
