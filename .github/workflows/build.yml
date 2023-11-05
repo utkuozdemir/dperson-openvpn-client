@@ -80,7 +80,7 @@ jobs:
           tags: |
             type=raw,value=alpine-${{ steps.alpine-version.outputs.version }}-openvpn-${{ steps.openvpn-version.outputs.version }}
             type=raw,value=${{ steps.openvpn-version.outputs.version }}
-            type=semver,value=latest
+            type=raw,value=latest
 
       - name: Push the images to ghcr.io
 #        if: github.ref == 'refs/heads/master'
