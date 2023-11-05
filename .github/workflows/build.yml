@@ -15,7 +15,7 @@ on:
     paths-ignore:
       - "**.md"
       - ".gitignore"
-  # cron to run every sunday at 00:00 UTC
+  # cron to run every Sunday at 00:00 UTC
   schedule:
     - cron: "0 0 * * 0"
 
@@ -33,6 +33,8 @@ jobs:
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
@@ -109,3 +111,4 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
