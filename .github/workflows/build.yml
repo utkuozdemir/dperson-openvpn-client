@@ -15,7 +15,7 @@ on:
     paths-ignore:
       - "**.md"
       - ".gitignore"
-  # cron to run every sunday at 00:00 UTC
+  # cron to run every Sunday at 00:00 UTC
   schedule:
     - cron: "0 0 * * 0"
 
@@ -99,16 +99,16 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=test-alpine-${{ steps.alpine-version.outputs.version }}-openvpn-${{ steps.openvpn-version.outputs.version }}
-#           type=raw,value=test-${{ steps.openvpn-version.outputs.version }}
-#           type=raw,value=latest
+            type=raw,value=alpine-${{ steps.alpine-version.outputs.version }}-openvpn-${{ steps.openvpn-version.outputs.version }}
+            type=raw,value=${{ steps.openvpn-version.outputs.version }}
+            type=raw,value=latest
 
       - name: Push the images to ghcr.io
         #if: steps.image-exists.outputs.exists == 'false' && github.ref == 'refs/heads/master'
-        #if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v5
         with:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
