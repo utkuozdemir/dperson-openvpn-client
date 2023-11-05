@@ -36,6 +36,8 @@ jobs:
 
       - name: Extract alpine version
         run: |
+          docker run --rm -it ghcr.io/utkuozdemir/dperson-pv-migrate:current-build cat /etc/os-release
+          
           ALPINE_VERSION=$(docker run --rm -it ghcr.io/utkuozdemir/dperson-pv-migrate:current-build cat /etc/os-release | \
             grep VERSION_ID | \
             awk -F'=' ' { print $NF } ' | \
