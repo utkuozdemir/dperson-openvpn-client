@@ -42,7 +42,6 @@ jobs:
           load: true
           push: false
           tags: current-build
-          platforms: linux/amd64,linux/arm64
 
       - name: Extract alpine version
         id: alpine-version
