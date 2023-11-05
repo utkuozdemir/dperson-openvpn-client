@@ -83,7 +83,7 @@ jobs:
             type=raw,value=latest
 
       - name: Push the images to ghcr.io
-#        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v5
         with:
           push: true
