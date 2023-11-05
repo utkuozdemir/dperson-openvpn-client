@@ -65,12 +65,12 @@ jobs:
           echo "Extracted OPENVPN_VERSION=$OPENVPN_VERSION"
           echo "version=$OPENVPN_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Check if the image exists already
+      - name: Check if the image already exists
         id: image-exists
         run: |
           set -euo pipefail
           
-          IMAGE=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:alpine-${{ steps.alpine-version.outputs.version }}-openvpn-${{ steps.openvpn-version.outputs.version }})
+          IMAGE=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:alpine-${{ steps.alpine-version.outputs.version }}-openvpn-${{ steps.openvpn-version.outputs.version }}")
           
           echo "Checking if image $IMAGE exists"
           
