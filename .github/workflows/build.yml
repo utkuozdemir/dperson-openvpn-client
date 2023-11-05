@@ -105,7 +105,7 @@ jobs:
 
       - name: Push the images to ghcr.io
         #if: steps.image-exists.outputs.exists == 'false' && github.ref == 'refs/heads/master'
-        if: github.ref == 'refs/heads/master'
+        #if: github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v5
         with:
           push: true
