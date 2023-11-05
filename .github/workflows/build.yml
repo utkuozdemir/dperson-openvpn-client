@@ -83,7 +83,7 @@ jobs:
           fi
 
       - name: Log in to ghcr.io
-        if: steps.image-exists.outputs.exists == 'false'
+        # if: steps.image-exists.outputs.exists == 'false'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -91,7 +91,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
-        if : steps.image-exists.outputs.exists == 'false'
+        # if : steps.image-exists.outputs.exists == 'false'
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -102,7 +102,8 @@ jobs:
             type=raw,value=latest
 
       - name: Push the images to ghcr.io
-        if: steps.image-exists.outputs.exists == 'false' && github.ref == 'refs/heads/master'
+        #if: steps.image-exists.outputs.exists == 'false' && github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v5
         with:
           push: true
