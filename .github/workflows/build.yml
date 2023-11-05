@@ -43,7 +43,7 @@ jobs:
         run: |
           ALPINE_VERSION=$(docker run --rm -it current-build cat /etc/os-release | \
             grep VERSION_ID | \
-            awk -F'=' ' { print $NF } ') | \
+            awk -F'=' ' { print $NF } ' | \
             tr -d '[:space:]')
           echo "Extracted ALPINE_VERSION=$ALPINE_VERSION"
           echo "ALPINE_VERSION=$(echo $ALPINE_VERSION)" >> $GITHUB_ENV
