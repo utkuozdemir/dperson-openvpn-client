@@ -36,7 +36,9 @@ jobs:
 
       - name: Extract alpine version
         run: |
-          ALPINE_VERSION=$(docker run --rm ghcr.io/utkuozdemir/dperson-pv-migrate:current-build cat /etc/os-release | \
+          set -euox pipefail
+          
+          ALPINE_VERSION=$(docker run --rm -it ghcr.io/utkuozdemir/dperson-pv-migrate:current-build cat /etc/os-release | \
             grep VERSION_ID | \
             awk -F'=' ' { print $NF } ' | \
             tr -d '[:space:]')
@@ -54,7 +56,13 @@ jobs:
 
       - name: Re-tag the image with alpine and openvpn versions
         run: |
+          # alpine and openvpn versions
           docker tag ghcr.io/utkuozdemir/dperson-pv-migrate:current-build ghcr.io/utkuozdemir/dperson-pv-migrate:alpine-$ALPINE_VERSION-openvpn-$OPENVPN_VERSION
+          
+          # only openvpn version
+          docker tag ghcr.io/utkuozdemir/dperson-pv-migrate:current-build ghcr.io/utkuozdemir/dperson-pv-migrate:$OPENVPN_VERSION
+          
+          # latest
           docker tag ghcr.io/utkuozdemir/dperson-pv-migrate:current-build ghcr.io/utkuozdemir/dperson-pv-migrate:latest
 
       - name: Push the image to ghcr.io if this is not a pull request
