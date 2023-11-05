@@ -23,6 +23,10 @@ concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -38,6 +42,7 @@ jobs:
           tags: current-build
 
       - name: Extract alpine version
+        id: alpine-version
         run: |
           set -euo pipefail
           
@@ -46,9 +51,10 @@ jobs:
             awk -F'=' ' { print $NF } ' | \
             tr -d '[:space:]')
           echo "Extracted ALPINE_VERSION=$ALPINE_VERSION"
-          echo "ALPINE_VERSION=$(echo $ALPINE_VERSION)" >> $GITHUB_ENV
+          echo "version=$ALPINE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Extract openvpn version
+        id: openvpn-version
         run: |
           set -euo pipefail
           
@@ -57,28 +63,29 @@ jobs:
             awk '{print $2}' | \
             tr -d '[:space:]')
           echo "Extracted OPENVPN_VERSION=$OPENVPN_VERSION"
-          echo "OPENVPN_VERSION=$(echo $OPENVPN_VERSION)" >> $GITHUB_ENV
+          echo "version=$OPENVPN_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Re-tag the image with alpine and openvpn versions
-        run: |
-          set -euo pipefail
-          
-          # alpine and openvpn versions
-          docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:alpine-$ALPINE_VERSION-openvpn-$OPENVPN_VERSION
-          
-          # only openvpn version
-          docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:$OPENVPN_VERSION
-          
-          # latest
-          docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:latest
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push the images to GitHub Container Registry
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=alpine-${{ steps.alpine-version.outputs.version }}-openvpn-${{ steps.openvpn-version.outputs.version }}
+            type=raw,value=${{ steps.openvpn-version.outputs.version }}
+            type=raw,value=latest
+
+      - name: Push the images to ghcr.io
         if: github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v5
         with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          tags: |
-            ghcr.io/utkuozdemir/dperson-pv-migrate:alpine-$ALPINE_VERSION-openvpn-$OPENVPN_VERSION
-            ghcr.io/utkuozdemir/dperson-pv-migrate:$OPENVPN_VERSION
-            ghcr.io/utkuozdemir/dperson-pv-migrate:latest
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
