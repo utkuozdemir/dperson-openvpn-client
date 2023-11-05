@@ -25,6 +25,8 @@ concurrency:
 
 jobs:
   build:
+    env:
+      CURRENT_BUILD: ghcr.io/utkuozdemir/dperson-pv-migrate:current-build
     runs-on: ubuntu-latest
     steps:
       - name: Build Docker image
@@ -32,13 +34,13 @@ jobs:
         with:
           pull: true
           push: false
-          tags: ghcr.io/utkuozdemir/dperson-pv-migrate:current-build
+          tags: $CURRENT_BUILD
 
       - name: Extract alpine version
         run: |
-          set -euox pipefail
+          set -euo pipefail
           
-          ALPINE_VERSION=$(docker run --rm -it ghcr.io/utkuozdemir/dperson-pv-migrate:current-build cat /etc/os-release | \
+          ALPINE_VERSION=$(docker run --rm $CURRENT_BUILD cat /etc/os-release | \
             grep VERSION_ID | \
             awk -F'=' ' { print $NF } ' | \
             tr -d '[:space:]')
@@ -47,7 +49,9 @@ jobs:
 
       - name: Extract openvpn version
         run: |
-          OPENVPN_VERSION=$(docker run --rm ghcr.io/utkuozdemir/dperson-pv-migrate:current-build openvpn --version | \
+          set -euo pipefail
+          
+          OPENVPN_VERSION=$(docker run --rm $CURRENT_BUILD openvpn --version | \
             grep -o 'OpenVPN [0-9.]*' | \
             awk '{print $2}' | \
             tr -d '[:space:]')
@@ -56,14 +60,16 @@ jobs:
 
       - name: Re-tag the image with alpine and openvpn versions
         run: |
+          set -euo pipefail
+          
           # alpine and openvpn versions
-          docker tag ghcr.io/utkuozdemir/dperson-pv-migrate:current-build ghcr.io/utkuozdemir/dperson-pv-migrate:alpine-$ALPINE_VERSION-openvpn-$OPENVPN_VERSION
+          docker tag $CURRENT_BUILD ghcr.io/utkuozdemir/dperson-pv-migrate:alpine-$ALPINE_VERSION-openvpn-$OPENVPN_VERSION
           
           # only openvpn version
-          docker tag ghcr.io/utkuozdemir/dperson-pv-migrate:current-build ghcr.io/utkuozdemir/dperson-pv-migrate:$OPENVPN_VERSION
+          docker tag $CURRENT_BUILD ghcr.io/utkuozdemir/dperson-pv-migrate:$OPENVPN_VERSION
           
           # latest
-          docker tag ghcr.io/utkuozdemir/dperson-pv-migrate:current-build ghcr.io/utkuozdemir/dperson-pv-migrate:latest
+          docker tag $CURRENT_BUILD ghcr.io/utkuozdemir/dperson-pv-migrate:latest
 
       - name: Push the image to ghcr.io if this is not a pull request
         if: ${{ github.event_name != 'pull_request' }}
