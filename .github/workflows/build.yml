@@ -70,7 +70,7 @@ jobs:
           docker tag current-build ghcr.io/utkuozdemir/dperson-pv-migrate:latest
 
       - name: Push the images to GitHub Container Registry
-        if: ${{ github.event_name != 'pull_request' }}
+        if: github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v5
         with:
           username: ${{ github.actor }}
