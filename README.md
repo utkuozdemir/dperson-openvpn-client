@@ -4,10 +4,10 @@ This project is a fork of [dperson/openvpn-client](https://github.com/dperson/op
 with the following changes:
 
 - Periodically builds a new image with the latest `alpine` and `openvpn` versions
-- Produce images with the following tags:
-  - combination of `alpine` and `openvpn` versions,
-    e.g. `ghcr.io/utkuozdemir/dperson-openvpn-client:alpine-3.18.4-openvpn-2.6.5`
-  - only the `openvpn version`, e.g. `ghcr.io/utkuozdemir/dperson-openvpn-client:2.6.5`
+- Produce `ghcr.io/utkuozdemir/dperson-openvpn-client` images with the following tags:
+  - combination of `alpine` and `openvpn` versions in different formats,
+    e.g. `alpine-3.18.4-openvpn-2.6.5` and `2.6.5-alpine-3.18.4` (semver-compatible).
+  - only the `openvpn version`, e.g. `2.6.5`
   - `latest`
 
 This way:
