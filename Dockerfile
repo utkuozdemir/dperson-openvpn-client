@@ -1,8 +1,10 @@
 FROM alpine
-MAINTAINER Utku Ozdemir <utkuozdemir@gmail.com>
+LABEL org.opencontainers.image.authors="utkuozdemir@gmail.com"
 
-# Install openvpn
-RUN apk --no-cache --no-progress upgrade && \
+# The first upgrade below is a workaround for "execve: No such file or directory" issue introduced in alpine 3.23.
+# See: https://gitlab.alpinelinux.org/alpine/aports/-/issues/17775?__goaway_challenge=cookie&__goaway_id=556dce04aa417438e8079cd4064374a6
+RUN apk upgrade --scripts=no apk-tools && \
+    apk --no-cache --no-progress upgrade && \
     apk --no-cache --no-progress add bash curl ip6tables iptables openvpn \
                 shadow tini tzdata shadow-login && \
     addgroup -S vpn && \
