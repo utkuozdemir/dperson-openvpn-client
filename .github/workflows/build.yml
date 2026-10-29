@@ -112,3 +112,17 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
+
+  # GitHub disables scheduled workflows after sixty days without repository activity.
+  # Re-enabling the workflow through the API on every scheduled run resets that clock,
+  # so the weekly build keeps itself alive even when nothing is pushed for months.
+  keep-schedule-alive:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: keep the schedule alive
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/build.yml/enable"
+        env:
+          GH_TOKEN: ${{ github.token }}
